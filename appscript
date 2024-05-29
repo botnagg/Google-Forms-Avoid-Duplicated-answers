@@ -1,0 +1,44 @@
+//This script is used in GOOGLE APPSCRIPT
+//It is usefull when you don't want to get the same answers in the same question, to not get duplicad answers.
+//All you need is to change the values that are in capital letters, the id of the link is what is between /d/ and /edit https://docs.google.com/spreadsheets/d/HERE/edit#gid=970419893
+//I had to make the script myself i hope i can help another people that needs this.
+//Best of wishes,
+//Nag.
+
+var sheetId = "GOOGLE SHEET FILE LINK ID";
+var formId = "GOOGLE FORMS FILE LINK ID";
+
+
+function myFunction() {
+  var ss = SpreadsheetApp.openById(sheetId);
+  var sheet = ss.getSheetByName("GOOGLE SHEETS NAME");
+  var form = FormApp.openById(formId);
+
+
+  // Collect unique values for the first column to prevent duplicate 'FIRST QUESTION' entries
+  var data = [...new Set(sheet.getDataRange().getValues().map(row => row[1]))].join('|');
+  var idItem = form.getItems().filter(item => item.getTitle() === 'FIRST QUESTION')[0];
+ 
+  if (idItem && idItem.getType() === FormApp.ItemType.TEXT) {
+    var textItem = idItem.asTextItem();
+    var pattern = `^(${data})$`;
+    var textval = FormApp.createTextValidation().setHelpText("This answer has been already sent, please try again.").requireTextDoesNotMatchPattern(pattern).build();
+    textItem.setValidation(textval);
+  } else {
+    Logger.log('Error: No TextItem with title "FIRST QUESTION" found or item type mismatch.');
+  }
+
+
+  // Collect unique values for the second column to prevent duplicate 'SECOND QUESTION' entries
+  var data1 = [...new Set(sheet.getDataRange().getValues().map(row => row[2]))].join('|');
+  var gasdItem = form.getItems().filter(item => item.getTitle() === 'SECOND QUESTION')[0];
+ 
+  if (gasdItem && gasdItem.getType() === FormApp.ItemType.TEXT) {
+    var paragraphTextItem = gasdItem.asTextItem();  // Adjusted to text item type
+    var pattern1 = `^(${data1})$`;
+    var textval1 = FormApp.createTextValidation().setHelpText("This answer has been already sent, please try again.").requireTextDoesNotMatchPattern(pattern1).build();
+    paragraphTextItem.setValidation(textval1);
+  } else {
+    Logger.log('Error: No TextItem with title "SECOND QUESTION" found or item type mismatch.');
+  }
+}
